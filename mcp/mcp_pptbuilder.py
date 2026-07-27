@@ -7,7 +7,7 @@ Tools:
   DB:
     - get_product_pdf   → PDF location records for a list of entry_ids
 
-  PPT Builder (localhost:5000/api/generate-ppt):
+  PPT Builder (report_lib.PPT_API, Cognito-authenticated):
     - build_deck_default      → Default template deck
     - build_deck_sos          → SOS template deck
     - build_deck_chase        → Chase template deck
@@ -27,15 +27,19 @@ from fastmcp import FastMCP
 from typing import Any, Optional
 
 # This module lives in mcp/; ConnectToDB_VPN_utils and config live in the
-# project root. Add the root to sys.path so they resolve regardless of cwd.
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# project root, report_lib in pipelines/. Add both to sys.path so they
+# resolve regardless of cwd.
+_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, _ROOT)
+sys.path.insert(0, os.path.join(_ROOT, "pipelines"))
 
 from ConnectToDB_VPN_utils import ssh_connect, ssh_disconnect, build_query
 import pandas as pd
 from io import StringIO
 import config
+import report_lib  # PPT_API + the ALB/Cognito login session (shared with every pipeline)
 
-PPT_API = "http://localhost:5001/api/generate-ppt"
+PPT_API = report_lib.PPT_API
 # Deck rendering fetches a thumbnail per entry ID, so it can take a while.
 # Override with the PPT_BUILDER_TIMEOUT env var (seconds).
 PPT_TIMEOUT = int(os.environ.get("PPT_BUILDER_TIMEOUT", "300"))
@@ -110,7 +114,18 @@ def get_product_pdf(entry_ids: list[str]) -> list[dict[str, Any]]:
 def _post_deck(meta: dict, slides: list[dict]) -> dict[str, Any]:
     payload = {"meta": meta, "slides": slides}
     try:
-        r = requests.post(PPT_API, json=payload, timeout=PPT_TIMEOUT)
+        session = report_lib.get_ppt_session()
+        r = session.post(PPT_API, json=payload, timeout=PPT_TIMEOUT)
+
+        # Expired ALB session cookie -> Cognito bounces the request back to
+        # the hosted login page instead of returning the deck. Re-login once
+        # and retry before giving up.
+        if "text/html" in r.headers.get("Content-Type", "") and (
+            r.history or "login" in r.url.lower()
+        ):
+            session = report_lib.get_ppt_session(force_relogin=True)
+            r = session.post(PPT_API, json=payload, timeout=PPT_TIMEOUT)
+
         r.raise_for_status()
 
         content_type = r.headers.get("Content-Type", "")
@@ -151,7 +166,7 @@ def _post_deck(meta: dict, slides: list[dict]) -> dict[str, Any]:
         return {"status": "ok", "message": "Deck generated. Check ppt_outputs folder."}
 
     except requests.exceptions.ConnectionError:
-        return {"error": "PPT builder not reachable at localhost:5000. Is it running?"}
+        return {"error": "PPT builder not reachable at csresearchhub.com. Is it running?"}
     except requests.exceptions.HTTPError:
         return {"error": f"PPT builder returned {r.status_code}: {r.text}"}
     except Exception as e:

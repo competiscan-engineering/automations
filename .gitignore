@@ -1,3 +1,4 @@
 /config.py
 /python-server.pem
 /output/*
+/.env
