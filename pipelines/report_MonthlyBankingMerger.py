@@ -11,16 +11,20 @@ Specialized, single-purpose pipeline — it only builds this one report:
           (needToKnow texts, per-slide insights, chosen entry IDs, mergers table CSV)
   Step 4  build_deck_default → assembles the slides
   Step 5  save PPTX to  output/Monthly_Banking_Merger_Report_YYYY_MM.pptx
+  Step 6  email the PPTX to a reviewer via report_lib.notify_report_ready()
+          (AWS SES) — opt-in only, gated on the MERGER_EMAIL_TO env var.
 
 No web search. The LLM writes every word from the archive OCR text it is given.
 
 RUN with the `research` conda env (has fastmcp / anthropic / pandas / boto3):
     C:/miniconda3/envs/research/python.exe report_MonthlyBankingMerger.py
 
-The PPT Builder server must be running locally (mcp_pptbuilder posts to
-http://localhost:5001). Claude is reached through AWS Bedrock using the same
-inference-profile ARN as the chat servers, so your normal AWS credentials
-(the boto3 default chain) are all that is needed — no ANTHROPIC_API_KEY.
+PPT Builder (csresearchhub.com) sits behind an ALB + Cognito login — needs
+PPT_BUILDER_LOGIN / PPT_BUILDER_PASSWORD in .env (report_lib.py loads it and
+handles the login; see report_lib.get_ppt_session). Claude is reached through
+AWS Bedrock using the same inference-profile ARN as the chat servers, so your
+normal AWS credentials (the boto3 default chain) are all that is needed — no
+ANTHROPIC_API_KEY.
 ─────────────────────────────────────────────────────────────────────────────
 """
 
@@ -51,6 +55,9 @@ os.environ.setdefault("PPT_BUILDER_TIMEOUT", "300")
 
 import mcp_serverv3  # noqa: E402  (search_archive)
 import mcp_pptbuilder  # noqa: E402  (build_deck_default)
+import report_lib as L  # noqa: E402  (email notification only — this script doesn't
+                         # otherwise use report_lib, it predates it; report_lib.py is
+                         # a sibling of this file, so a bare import just works)
 
 # fastmcp's @mcp.tool() returns the plain function in 3.x, but unwrap defensively
 # (a future version could wrap it in a FunctionTool whose original fn is on .fn).
@@ -69,6 +76,10 @@ BEDROCK_CONFIG = Config(
 MAX_TOKENS = 4000  # headroom for the JSON (mergers CSV + 4 text fields); spec said 2000
 
 OUTPUT_DIR   = ROOT / "output"
+# Recipient for the end-of-run "report ready" email — unset means "don't
+# email, just save the PPTX" (opt-in only, same reasoning as every other
+# report pipeline's EMAIL_TO). Set via env: MERGER_EMAIL_TO=someone@competiscan.com
+EMAIL_TO     = os.environ.get("MERGER_EMAIL_TO") or None
 SECTORS      = ["Banking"]
 KEYWORD      = '"merger" or "acquisition" or "merged" or "acquired"'
 SEARCH_LIMIT = 50
@@ -272,11 +283,11 @@ def main() -> int:
     print(f"Monthly Banking Merger Report — {month_str}")
 
     # Step 1 & 2 — archive search (no web) ------------------------------------
-    print("Step 1/5  Searching archive: Banking merger EMAIL campaigns…")
+    print("Step 1/6  Searching archive: Banking merger EMAIL campaigns…")
     email_results = _search("Email")
     print(f"          {len(email_results)} email results")
 
-    print("Step 2/5  Searching archive: Banking merger SOCIAL MEDIA campaigns…")
+    print("Step 2/6  Searching archive: Banking merger SOCIAL MEDIA campaigns…")
     social_results = _search("Social Media")
     print(f"          {len(social_results)} social results")
 
@@ -286,7 +297,7 @@ def main() -> int:
         return 1
 
     # Step 3 — single LLM call structures the report copy ---------------------
-    print("Step 3/5  Asking Claude (Bedrock) to structure the report copy…")
+    print("Step 3/6  Asking Claude (Bedrock) to structure the report copy…")
     prompt = PROMPT_TEMPLATE.format(
         month=month_str,
         email_block=_format_for_prompt(email_results, "EMAIL merger campaigns"),
@@ -307,7 +318,7 @@ def main() -> int:
     print(f"          social IDs: {social_ids}")
 
     # Step 4 — assemble the slides -------------------------------------------
-    print("Step 4/5  Building the deck…")
+    print("Step 4/6  Building the deck…")
     slides: list[dict] = [
         {"type": "title", "data": {
             "title": "Monthly Banking Merger Report",
@@ -352,11 +363,10 @@ def main() -> int:
     )
 
     # Step 5 — save the PPTX to output/ --------------------------------------
-    print("Step 5/5  Saving the PPTX…")
+    print("Step 5/6  Saving the PPTX…")
     if not isinstance(result, dict) or "error" in result:
         err = result.get("error") if isinstance(result, dict) else result
         print(f"ERROR: PPT builder failed: {err}")
-        print("       Is the PPT Builder server running at http://localhost:5001 ?")
         return 1
 
     b64 = result.get("pptx_base64")
@@ -375,7 +385,26 @@ def main() -> int:
     if saved != out_path:
         print(f"NOTE: {out_path.name} was locked (open in PowerPoint?) — "
               f"saved as {saved.name} instead.")
-    print(f"Done. Saved: {saved}")
+    print(f"Saved: {saved}")
+
+    # Step 6 — email the deliverable to a reviewer, only if a recipient was
+    # explicitly configured (MERGER_EMAIL_TO env var) — an actual send has real
+    # inbox-facing consequences, so this is opt-in, never automatic.
+    if EMAIL_TO:
+        print(f"Step 6/6  Emailing deliverable to {EMAIL_TO}…")
+        email_result = L.notify_report_ready(
+            report_name="Monthly Banking Merger Report", period_label=month_str,
+            attachment_paths=[saved], to_addr=EMAIL_TO,
+        )
+        if email_result.get("status") == "sent":
+            print(f"          sent (message_id={email_result.get('message_id')})")
+        else:
+            print(f"          !! email FAILED: {email_result.get('error')} — "
+                  f"file is still saved locally, nothing lost")
+    else:
+        print("Step 6/6  Skipped emailing — no MERGER_EMAIL_TO set. File is saved locally only.")
+
+    print("Done.")
     return 0
 
 

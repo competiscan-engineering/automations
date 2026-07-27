@@ -1,0 +1,38 @@
+# Competiscan report pipelines — cron schedule.
+# Install with:  crontab pipelines/cron/crontab.example
+# (or open `crontab -e` and paste the three job lines below in).
+#
+# Before enabling, on the VM:
+#   1. chmod +x pipelines/cron/*.sh
+#   2. Edit pipelines/cron/common.sh — set CONDA_PYTHON to the real path of
+#      the "research" conda env's python on this VM.
+#   3. Confirm the repo + its prerequisites are all present at
+#      /opt/automations: .env (PPT_BUILDER_LOGIN/PASSWORD), python-server.pem
+#      (SSH key for the MySQL tunnel — see ConnectToDB_VPN_utils.py), and AWS
+#      credentials for Bedrock + SES (~/.aws/credentials or an instance role).
+#   4. Confirm the VM can actually reach: the MySQL host over SSH,
+#      csresearchhub.com (PPT builder), and AWS. The pipelines fail loudly and
+#      exit non-zero when any of these are unreachable — they do not silently
+#      skip — so a failed run will show up in the logs under
+#      pipelines/output/logs/.
+#   5. Check the VM's timezone (`timedatectl`) — the hours below assume it
+#      matches your local time; adjust if the VM runs in UTC or another zone.
+#
+# Optional: uncomment MAILTO so cron emails you if a wrapper script itself
+# fails to even start (needs a local MTA/sendmail configured on the VM —
+# separate from the pipelines' own SES-based report-ready emails).
+# MAILTO=hgquijano@competiscan.com
+
+# Harborstone weekly deck — every Monday at 6:00 AM, reports the week that
+# just ended (Mon->Mon window, computed by the pipeline itself).
+0 6 * * 1 /opt/automations/pipelines/cron/run_harborstone.sh
+
+# Monthly Banking Merger — 23:59, but only fires on the LAST day of the month
+# (the `[ ... ] &&` guard checks that tomorrow rolls over to day 01). The
+# pipeline always reports on "the current month" at the moment it runs, so
+# firing right before month-end is what makes that mean the complete month.
+59 23 28-31 * * [ "$(date -d tomorrow +\%d)" = "01" ] && /opt/automations/pipelines/cron/run_merger.sh
+
+# SupplyHouse.com competitor ads — 5:00 AM on the 1st of each month, reporting
+# on the prior (now-complete) calendar month.
+0 5 1 * * /opt/automations/pipelines/cron/run_supplyhouse.sh
