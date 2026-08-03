@@ -1,0 +1,104 @@
+{
+  "name": "Monthly Banking Merger Report",
+  "client": "Monthly Banking Merger",
+  "cadence": "month",
+  "anchor": "prior_complete",
+  "window_field": "entry_id",
+  "home_states": "Washington, Oregon, California",
+  "deck": {
+    "enabled": true,
+    "title": "{client} \u2014 {period}",
+    "filename": "Monthly_Banking_Merger_Report_{stamp}.pptx",
+    "title_slide": true,
+    "summary_slide": false,
+    "section_headings": false,
+    "closing_slide": true
+  },
+  "workbook": {
+    "enabled": false,
+    "filename": "{client}_Data_{stamp}.xlsx"
+  },
+  "email": {
+    "enabled": false,
+    "env_var": "RS_EMAIL_TO"
+  },
+  "notes": "",
+  "sections": [
+    {
+      "id": "37634662",
+      "title": "Recent Observations",
+      "heading": "",
+      "search": {
+        "companies": "",
+        "sectors": [
+          "Banking"
+        ],
+        "channels": [
+          "Email"
+        ],
+        "keyword": "\"merger\" or \"acquisition\" or \"merging\" or \"acquired\" or \"combining\" or \"joining forces\" or \"coming together\"",
+        "audience": "Consumer",
+        "limit": 200,
+        "only_credit_unions": false,
+        "company_must_match": "",
+        "company_must_not_match": "",
+        "subcategory_must_include": "",
+        "subcategory_must_exclude": "",
+        "collapse_repeats": true,
+        "max_per_creative": 2
+      },
+      "sheet": {
+        "enabled": false,
+        "tab": "",
+        "columns": []
+      },
+      "feature": {
+        "enabled": true,
+        "count": 4,
+        "how_to_choose": "Announcements of a merger or acquisition, and operational updates that follow one (branch conversions, new routing numbers, systems cutover dates). Prefer pieces naming both institutions.",
+        "what_to_say": "One analyst paragraph. Name the institutions involved and what the customer is being told to expect and when.",
+        "callout_limit": 374,
+        "one_per_company": true,
+        "never_reuse": true
+      }
+    },
+    {
+      "id": "09ff3201",
+      "title": "Social Media Observations",
+      "heading": "",
+      "search": {
+        "companies": "",
+        "sectors": [
+          "Banking"
+        ],
+        "channels": [
+          "Social Media"
+        ],
+        "keyword": "\"merger\" or \"acquisition\" or \"merging\" or \"acquired\" or \"combining\" or \"joining forces\" or \"coming together\"",
+        "audience": "Consumer",
+        "limit": 200,
+        "only_credit_unions": false,
+        "company_must_match": "",
+        "company_must_not_match": "",
+        "subcategory_must_include": "",
+        "subcategory_must_exclude": "",
+        "collapse_repeats": true,
+        "max_per_creative": 2
+      },
+      "sheet": {
+        "enabled": false,
+        "tab": "",
+        "columns": []
+      },
+      "feature": {
+        "enabled": true,
+        "count": 4,
+        "how_to_choose": "Social-first merger messaging: reassurance posts, welcome posts, and rebrand reveals. Prefer pieces that show the new brand.",
+        "what_to_say": "One analyst paragraph on how the message is framed for a social audience rather than what the merger is.",
+        "callout_limit": 374,
+        "one_per_company": true,
+        "never_reuse": true
+      }
+    }
+  ]
+}

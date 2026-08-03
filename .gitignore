@@ -2,3 +2,5 @@
 /python-server.pem
 /output/*
 /.env
+*.pptx
+*.pyc
