@@ -7,12 +7,17 @@ Same shape as report_MonthlyBankingMerger.py: it uses ONLY the search_archive
 and build_deck_default tools (no SQL, no product-detail). Everything reusable
 lives in report_lib.py.
 
-Four categories, each an OCR-keyword + sector search:
-  Membership (credit unions only) · Checking · Auto · Home Lending
+Four categories, each an OCR-keyword + sector search — ALL FOUR are credit-
+union only (hard-filtered, not just LLM-guided):
+  Membership · Checking · Auto · Home Lending
 
   Step 1  category×channel search_archive calls (sequential — see note below)
-  Step 2  keep entries whose entry_id DATE falls in the week; CU-filter Membership;
-          SQL-enrich for Excel; write the workbook (EntryID + PDF hyperlinks)
+  Step 2  keep entries whose entry_id DATE falls in the week; CU-filter all four
+          categories; SQL-enrich for Excel; write the workbook (EntryID + PDF
+          hyperlinks); THEN hard-filter Auto/Home to their own loan sub-category
+          (Vehicle Financing vs. Mortgage/HELOC/Home-Equity) via the same SQL
+          enrichment — the "Mortgage & Loan" sector also covers small-business
+          and personal loans, which search_archive alone can't tell apart
   Step 3  pre-sort each category's candidates by (market_tier, channel_tier) — pure
           Python, no LLM — then 4 parallel Claude "Selection" calls pick
           FEATURED_PER_SLIDE entry_ids from that pre-sorted shortlist
@@ -79,15 +84,13 @@ WEEK_END           = os.environ.get("HARBOR_WEEK_END") or None     # "2026-07-14
 # email, just save the files" (opt-in only — an actual send has real inbox-
 # facing consequences). Set via env: HARBOR_EMAIL_TO=someone@competiscan.com
 EMAIL_TO           = os.environ.get("HARBOR_EMAIL_TO") or None
-PRIORITY_STATES    = ["Washington", "Oregon"]
-SECONDARY_STATES   = ["California"]
+PRIORITY_STATES    = ["Washington", "California", "Oregon"]
 NEARBY_STATES      = ["Idaho", "Nevada", "Alaska", "Montana"]
-MEMBERSHIP_CU_ONLY = True
 FEATURED_PER_SLIDE = 4
 LLM_SHORTLIST_CAP  = 150     # show the LLM ALL in-window records (was 40, which
                              # hid candidates in high-volume weeks and defeated the
                              # WA/OR priority). ~150 covers a week; token-cheap.
-SEARCH_LIMIT       = 50      # search_archive hard-caps at 50 per call
+SEARCH_LIMIT       = 100      # search_archive hard-caps at 100 per call
 CALLOUT_LIMIT      = 374     # each slide callout must be < 375 chars, no ellipsis
 OUTPUT_DIR         = PROJECT_ROOT / "output"
 
@@ -159,28 +162,71 @@ CATEGORIES = [
         "sectors": ["Banking"],
         "channels": ["Direct Mail", "Email", "Online Display", "Online Video", "Print", "Search Engine Marketing", "Social Media", "Website/URL"],
         "keyword": '',
-        "cu_only": False, "headers": HEADERS_19,
-        "guidance": "Any financial institution. Checking-account acquisition content; prioritize nearby credit unions and banks.",
+        "cu_only": True, "headers": HEADERS_19,
+        "guidance": "Credit unions only. Checking-account acquisition content that encourages opening a new account or signing up online.",
     },
     {
         "key": "Auto", "slide_title": "Auto Lending", "sheet": "Auto",
         "sectors": ["Mortgage & Loan"],
         "channels": ["Direct Mail", "Email", "Online Display", "Online Video", "Print", "Search Engine Marketing", "Social Media", "Website/URL"],
         "keyword": '',
-        "cu_only": False, "headers": HEADERS_21,
-        "guidance": "Any financial institution. Vehicle financing / re-financing acquisition content.",
+        "cu_only": True, "headers": HEADERS_21,
+        "guidance": (
+            "Credit unions only. Vehicle financing / re-financing acquisition content — "
+            "candidates are already hard-filtered to the Vehicle Financing loan "
+            "sub-category, so anything shown here is auto lending, never a mortgage, "
+            "HELOC, or small-business/personal loan."
+        ),
     },
     {
         "key": "Home", "slide_title": "Home Lending", "sheet": "Home Lending",
         "sectors": ["Mortgage & Loan"],
         "channels": ["Direct Mail", "Email", "Online Display", "Online Video", "Print", "Search Engine Marketing", "Social Media", "Website/URL"],
         "keyword": '',
-        "cu_only": False, "headers": HEADERS_21,
-        "guidance": "Any financial institution. Home-equity and mortgage acquisition content.",
+        "cu_only": True, "headers": HEADERS_21,
+        "guidance": (
+            "Credit unions only. Home-equity and mortgage acquisition content — "
+            "candidates are already hard-filtered to Mortgage/HELOC/Home-Equity/"
+            "Reverse-Mortgage loan sub-categories, so anything shown here is home "
+            "lending, never auto financing or a small-business/commercial loan."
+        ),
     },
 ]
 
 _CU_RE = re.compile(r"credit union|\bFCU\b|\bF\.?C\.?U\.?\b|\bCU\b", re.IGNORECASE)
+
+# Auto and Home both search the "Mortgage & Loan" sector, which search_archive
+# can't narrow any further — that one sector also covers small-business loans,
+# personal loans, retail point-of-sale/BNPL financing, and checking accounts.
+# Sub-category is only available via SQL enrichment (report_lib_excel_helper's
+# "sub_categories" column — see _excel_rows_via_sql), so it's hard-filtered
+# here the same way cu_only hard-filters by company name, rather than asking
+# the Selection LLM to sort auto vs. home vs. everything-else out of OCR text.
+# A blank/unenriched tag (no SQL row came back for that entry_id) matches
+# neither — safer to drop an unverifiable entry than risk the wrong slide.
+AUTO_SUBCATEGORY_KEYWORDS = ("vehicle financing",)
+HOME_SUBCATEGORY_KEYWORDS = ("mortgage", "heloc", "home equity", "home ownership investment")
+# Shares the "Mortgage & Loan" sector but is neither Auto nor Home lending —
+# excluded from both regardless of an include-keyword also matching (e.g.
+# "commercial mortgage" contains "mortgage" but is a business product).
+LOAN_SUBCATEGORY_EXCLUDE_KEYWORDS = (
+    "business loan", "commercial mortgage", "personal loan", "personal lines of credit",
+    "point of sale financing", "bnpl", "checking account", "education loan",
+    "payroll advance", "title loan", "credit card",
+)
+
+
+def _matches_subcategory(sub_categories: str, include: tuple, exclude: tuple) -> bool:
+    """True if `sub_categories` (the SQL-enriched, '||'-joined tag string) names
+    one of `include`'s loan types and none of `exclude`'s. Case-insensitive
+    substring match — sub_categories often stacks several tags together (e.g.
+    'Dealer/Retailer||Lease||Vehicle Financing')."""
+    text = (sub_categories or "").lower()
+    if not text:
+        return False
+    if any(kw in text for kw in exclude):
+        return False
+    return any(kw in text for kw in include)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -354,6 +400,12 @@ def _excel_rows_via_sql(entry_ids: list[str]) -> list[dict]:
         row["pid"] = r.get("product_id", "")
         row["entry_id"] = r.get("entry_id", "")
         row["Market"] = _market(row.get("State/Province"))
+        # Raw (unsplit) sub_categories tag string, e.g. "Lease||Vehicle Financing"
+        # — kept separate from complete_row()'s "Primary Sub Category" (which
+        # only keeps the alphabetically-first tag) so Auto/Home classification
+        # can check ALL of an entry's tags, not just one. Not an Excel column,
+        # so write_workbook() ignores it.
+        row["_sub_categories"] = r.get("sub_categories") or ""
     return rows
 
 
@@ -408,7 +460,7 @@ def _as_text(value) -> str:
 SELECT_SYSTEM_TMPL = (
     "You are a market research analyst at Competiscan selecting which direct-marketing "
     "campaigns to feature on one slide of a weekly competitive update for {client}, a "
-    "credit union in the Pacific Northwest (Washington/Oregon). You are given real "
+    "credit union in the Pacific Northwest (Washington/California/Oregon). You are given real "
     "campaigns from Competiscan's archive for the {category} category, each tagged with "
     "entry_id, market (In Market = targets Washington/Oregon/California, or National), "
     "channel_tier (Top = Email/Direct Mail, Mid = Online Video/Online Display/Print/"
@@ -419,9 +471,8 @@ SELECT_SYSTEM_TMPL = (
     "CONTENT is a clearly better fit for this slide (see rule 3) — content fit can "
     "outweigh market/channel tier.\n\n"
     "Selection rules, in priority order:\n"
-    "  1. Prefer In-Market pieces (WA/OR/CA) over National; within the same market tier, "
-    "prefer Top channel over Mid over Low.\n"
-    "  2. Prioritize content that encourages online account creation / sign-up.\n"
+    "  1. ALWAYS select In-Market pieces (WA/OR/CA) in each of the slides. "
+    "  2. If the are not In-Market, choose pieces from the National market, prioritizing content that encourages online account creation / sign-up.\n"
     "  3. {guidance}\n"
     "  4. AVOID FEATURING THE SAME COMPANY MORE THAN ONCE on this slide. If the top "
     "candidates by rules 1-3 include near-duplicate pieces from one company (e.g. two "
@@ -534,12 +585,14 @@ def main() -> int:
     # Step 2 — Excel (broader offers, enriched via SQL) ----------------------
     print("Step 2/7  Enriching Step-1 entry_ids via SQL + writing the Excel…")
     sheets = []
-    market_by_id: dict[str, str] = {}   # entry_id -> "In Market" / "National"
+    market_by_id: dict[str, str] = {}    # entry_id -> "In Market" / "National"
+    subcats_by_id: dict[str, str] = {}   # entry_id -> raw "sub_categories" tag string
     for cat in CATEGORIES:
         entry_ids = [r["entry_id"] for r in by_cat[cat["key"]]]
         rows = _excel_rows_via_sql(entry_ids)
         for row in rows:
             market_by_id[row.get("entry_id")] = row.get("Market", "National")
+            subcats_by_id[row.get("entry_id")] = row.get("_sub_categories", "")
         n_in = sum(1 for row in rows if row.get("Market") == "In Market")
         print(f"   {cat['key']:11} {len(entry_ids):>3} entry_ids → {len(rows):>3} enriched rows"
               f"  ({n_in} In Market)")
@@ -558,6 +611,22 @@ def main() -> int:
     for cat in CATEGORIES:
         for r in by_cat[cat["key"]]:
             r["market"] = market_by_id.get(r["entry_id"], "National")
+
+    # Auto and Home share the "Mortgage & Loan" sector search, which also pulls
+    # in small-business loans, personal loans, and retail BNPL financing (see
+    # AUTO_SUBCATEGORY_KEYWORDS above) — hard-filter each to its own loan
+    # sub-category here, AFTER the Excel sheets are already built, so the
+    # Excel stays the "broader offers" list but the PPTX Selection call (Step
+    # 3) only ever sees on-topic candidates for its slide.
+    before_auto, before_home = len(by_cat["Auto"]), len(by_cat["Home"])
+    by_cat["Auto"] = [r for r in by_cat["Auto"] if _matches_subcategory(
+        subcats_by_id.get(r["entry_id"], ""), AUTO_SUBCATEGORY_KEYWORDS, LOAN_SUBCATEGORY_EXCLUDE_KEYWORDS)]
+    by_cat["Home"] = [r for r in by_cat["Home"] if _matches_subcategory(
+        subcats_by_id.get(r["entry_id"], ""), HOME_SUBCATEGORY_KEYWORDS, LOAN_SUBCATEGORY_EXCLUDE_KEYWORDS)]
+    print(f"   Auto sub-category filter: {before_auto:>3} → {len(by_cat['Auto']):>3} "
+          f"(vehicle financing only)")
+    print(f"   Home sub-category filter: {before_home:>3} → {len(by_cat['Home']):>3} "
+          f"(mortgage/HELOC/home-equity only)")
 
     xlsx_path = OUTPUT_DIR / f"{CLIENT}_Competiscan_MarketingTopics_{mmddyy}.xlsx"
     xlsx_path = L.write_workbook(xlsx_path, sheets)

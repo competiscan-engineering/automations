@@ -1,0 +1,171 @@
+{
+  "name": "Credit Card Rewards Watch",
+  "client": "Card Rewards Watch",
+  "cadence": "month",
+  "anchor": "prior_complete",
+  "window_field": "entry_id",
+  "home_states": "Washington, Oregon, California",
+  "deck": {
+    "enabled": true,
+    "title": "{client} \u2014 {period}",
+    "filename": "Card_Rewards_Watch_{month_year}.pptx",
+    "title_slide": true,
+    "summary_slide": true,
+    "section_headings": false,
+    "closing_slide": true
+  },
+  "workbook": {
+    "enabled": true,
+    "filename": "Card_Rewards_Watch_{mmddyy}.xlsx"
+  },
+  "email": {
+    "enabled": false,
+    "env_var": "RS_EMAIL_TO"
+  },
+  "notes": "Deliberately uses only search-derived columns, so this report never opens the database tunnel. Use it to check that the archive search itself is healthy when a database-backed report is failing.",
+  "sections": [
+    {
+      "id": "4b496b7c",
+      "title": "Travel Rewards",
+      "heading": "",
+      "search": {
+        "companies": "Chase\nAmerican Express\nCitibank\nCapital One\nDiscover\nBank of America\nWells Fargo",
+        "sectors": [
+          "Credit Cards"
+        ],
+        "channels": [
+          "Email",
+          "Direct Mail",
+          "Social Media",
+          "Online Display"
+        ],
+        "keyword": "\"travel\" or \"miles\" or \"airline\" or \"hotel\" or \"lounge\"",
+        "audience": "Consumer",
+        "limit": 200,
+        "only_credit_unions": false,
+        "company_must_match": "",
+        "company_must_not_match": "",
+        "subcategory_must_include": "",
+        "subcategory_must_exclude": "",
+        "collapse_repeats": true,
+        "max_per_creative": 2
+      },
+      "sheet": {
+        "enabled": true,
+        "tab": "Travel",
+        "columns": [
+          "EntryID",
+          "Primary Company",
+          "Headline",
+          "Media Channel",
+          "State/Province",
+          "Quarter"
+        ]
+      },
+      "feature": {
+        "enabled": true,
+        "count": 5,
+        "how_to_choose": "Cards sold on travel value: transferable points, airline or hotel co-brands, lounge access. Prefer pieces stating a sign-up bonus.",
+        "what_to_say": "One paragraph naming each issuer, the card, and the bonus offered.",
+        "callout_limit": 374,
+        "one_per_company": true,
+        "never_reuse": true
+      }
+    },
+    {
+      "id": "c254a7f6",
+      "title": "Cash Back",
+      "heading": "",
+      "search": {
+        "companies": "Chase\nAmerican Express\nCitibank\nCapital One\nDiscover\nBank of America\nWells Fargo",
+        "sectors": [
+          "Credit Cards"
+        ],
+        "channels": [
+          "Email",
+          "Direct Mail",
+          "Social Media",
+          "Online Display"
+        ],
+        "keyword": "\"cash back\" or \"cashback\" or \"5%\" or \"2% back\"",
+        "audience": "Consumer",
+        "limit": 200,
+        "only_credit_unions": false,
+        "company_must_match": "",
+        "company_must_not_match": "",
+        "subcategory_must_include": "",
+        "subcategory_must_exclude": "",
+        "collapse_repeats": true,
+        "max_per_creative": 2
+      },
+      "sheet": {
+        "enabled": true,
+        "tab": "Cash Back",
+        "columns": [
+          "EntryID",
+          "Primary Company",
+          "Headline",
+          "Media Channel",
+          "State/Province",
+          "Quarter"
+        ]
+      },
+      "feature": {
+        "enabled": true,
+        "count": 5,
+        "how_to_choose": "Flat-rate and rotating-category cash back. Prefer pieces stating the actual percentage and any cap.",
+        "what_to_say": "One paragraph. Give the real percentages and any spending cap or quarterly activation requirement.",
+        "callout_limit": 374,
+        "one_per_company": true,
+        "never_reuse": true
+      }
+    },
+    {
+      "id": "fa47157a",
+      "title": "Balance Transfer",
+      "heading": "",
+      "search": {
+        "companies": "Chase\nAmerican Express\nCitibank\nCapital One\nDiscover\nBank of America\nWells Fargo",
+        "sectors": [
+          "Credit Cards"
+        ],
+        "channels": [
+          "Email",
+          "Direct Mail",
+          "Online Display"
+        ],
+        "keyword": "\"balance transfer\" or \"0% intro\" or \"0% APR\"",
+        "audience": "Consumer",
+        "limit": 200,
+        "only_credit_unions": false,
+        "company_must_match": "",
+        "company_must_not_match": "",
+        "subcategory_must_include": "",
+        "subcategory_must_exclude": "",
+        "collapse_repeats": true,
+        "max_per_creative": 2
+      },
+      "sheet": {
+        "enabled": true,
+        "tab": "Balance Transfer",
+        "columns": [
+          "EntryID",
+          "Primary Company",
+          "Headline",
+          "Media Channel",
+          "State/Province",
+          "Quarter"
+        ]
+      },
+      "feature": {
+        "enabled": true,
+        "count": 4,
+        "how_to_choose": "Balance-transfer and intro-APR offers. Prefer pieces stating the intro length and the transfer fee.",
+        "what_to_say": "One paragraph. State each intro period, the go-to rate, and the transfer fee.",
+        "callout_limit": 374,
+        "one_per_company": true,
+        "never_reuse": true
+      }
+    }
+  ]
+}
