@@ -4,3 +4,8 @@
 /.env
 *.pptx
 *.pyc
+/pipelines/generated/_cache/
+/pipelines/generated/_test_*.py
+.kiro/specs/studio-usability-improvements/.config.kiro
+.mcp.json
+.kiro/specs/studio-usability-improvements/requirements.md

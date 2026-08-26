@@ -1,0 +1,280 @@
+{
+  "schema": 3,
+  "name": "Mortgage product mix",
+  "client": "Mortgage Mix",
+  "cadence": "month",
+  "anchor": "prior_complete",
+  "date_field": "search_date",
+  "deck": {
+    "enabled": true,
+    "title": "{client} \u2014 {period}",
+    "filename": "{client}_{month_year}.pptx",
+    "title_slide": true,
+    "summary_slide": true,
+    "section_headings": true,
+    "closing_slide": true
+  },
+  "workbook": {
+    "enabled": true,
+    "filename": "{client}_{month_year}.xlsx"
+  },
+  "email": {
+    "enabled": false,
+    "to_addr": ""
+  },
+  "notes": "",
+  "sections": [
+    {
+      "id": "73b1d231",
+      "title": "Refinance",
+      "heading": "Refi",
+      "search": {
+        "sector": [
+          "Mortgage & Loan"
+        ],
+        "category": [],
+        "subcategory": [],
+        "subsubcategory": [],
+        "media_channel": [
+          "Direct Mail",
+          "Email"
+        ],
+        "audience": [
+          "Consumer"
+        ],
+        "country": "",
+        "company": [],
+        "company_match": "exact",
+        "ocr_text": [],
+        "ocr_text_match": "all",
+        "entry_id": [],
+        "panelist_id": [],
+        "panelist_type": "all",
+        "filters": [
+          "refinance"
+        ],
+        "enhanced": {
+          "refinance": true
+        },
+        "row_cap": 1500,
+        "company_must_not_match": "",
+        "collapse_repeats": true,
+        "max_per_creative": 2
+      },
+      "sheet": {
+        "enabled": true,
+        "tab": "Refinance",
+        "columns": [
+          "EntryID",
+          "Primary Company",
+          "Product",
+          "Headline",
+          "Media Channel",
+          "Mailing Type",
+          "Quarter",
+          "PDF Content",
+          "Mortgage & Loan - Application Type"
+        ]
+      },
+      "feature": {
+        "enabled": true,
+        "count": 4,
+        "how_to_choose": "Refinance offers. Prefer pieces stating a rate or a monthly saving.",
+        "what_to_say": "One paragraph in an analyst voice. Name each institution and its specific offer, with the rate or dollar figure the piece actually states. Do not invent details.",
+        "callout_limit": 374,
+        "one_per_company": true,
+        "never_reuse": true,
+        "mention_total": true
+      }
+    },
+    {
+      "id": "c323e0c7",
+      "title": "Government-Backed (VA / FHA)",
+      "heading": "Purchase",
+      "search": {
+        "sector": [
+          "Mortgage & Loan"
+        ],
+        "category": [],
+        "subcategory": [],
+        "subsubcategory": [],
+        "media_channel": [
+          "Direct Mail",
+          "Email"
+        ],
+        "audience": [
+          "Consumer"
+        ],
+        "country": "",
+        "company": [],
+        "company_match": "exact",
+        "ocr_text": [],
+        "ocr_text_match": "all",
+        "entry_id": [],
+        "panelist_id": [],
+        "panelist_type": "all",
+        "filters": [
+          "va"
+        ],
+        "enhanced": {
+          "va": true
+        },
+        "row_cap": 1500,
+        "company_must_not_match": "",
+        "collapse_repeats": true,
+        "max_per_creative": 2
+      },
+      "sheet": {
+        "enabled": true,
+        "tab": "VA FHA",
+        "columns": [
+          "EntryID",
+          "Primary Company",
+          "Product",
+          "Headline",
+          "Media Channel",
+          "Mailing Type",
+          "Quarter",
+          "PDF Content",
+          "Mortgage & Loan - Application Type"
+        ]
+      },
+      "feature": {
+        "enabled": true,
+        "count": 4,
+        "how_to_choose": "VA lending. Note how each lender frames eligibility.",
+        "what_to_say": "One paragraph in an analyst voice. Name each institution and its specific offer, with the rate or dollar figure the piece actually states. Do not invent details.",
+        "callout_limit": 374,
+        "one_per_company": true,
+        "never_reuse": true,
+        "mention_total": true
+      }
+    },
+    {
+      "id": "95681d75",
+      "title": "Conventional Purchase",
+      "heading": "Purchase",
+      "search": {
+        "sector": [
+          "Mortgage & Loan"
+        ],
+        "category": [],
+        "subcategory": [],
+        "subsubcategory": [],
+        "media_channel": [
+          "Direct Mail",
+          "Email"
+        ],
+        "audience": [
+          "Consumer"
+        ],
+        "country": "",
+        "company": [],
+        "company_match": "exact",
+        "ocr_text": [],
+        "ocr_text_match": "all",
+        "entry_id": [],
+        "panelist_id": [],
+        "panelist_type": "all",
+        "filters": [
+          "conventional"
+        ],
+        "enhanced": {
+          "conventional": true
+        },
+        "row_cap": 1500,
+        "company_must_not_match": "",
+        "collapse_repeats": true,
+        "max_per_creative": 2
+      },
+      "sheet": {
+        "enabled": true,
+        "tab": "Conventional",
+        "columns": [
+          "EntryID",
+          "Primary Company",
+          "Product",
+          "Headline",
+          "Media Channel",
+          "Mailing Type",
+          "Quarter",
+          "PDF Content",
+          "Mortgage & Loan - Application Type"
+        ]
+      },
+      "feature": {
+        "enabled": true,
+        "count": 4,
+        "how_to_choose": "Conventional purchase mortgages. Prefer distinct lenders.",
+        "what_to_say": "One paragraph in an analyst voice. Name each institution and its specific offer, with the rate or dollar figure the piece actually states. Do not invent details.",
+        "callout_limit": 374,
+        "one_per_company": true,
+        "never_reuse": true,
+        "mention_total": true
+      }
+    },
+    {
+      "id": "f89f056f",
+      "title": "Jumbo & High-Balance",
+      "heading": "Purchase",
+      "search": {
+        "sector": [
+          "Mortgage & Loan"
+        ],
+        "category": [],
+        "subcategory": [],
+        "subsubcategory": [],
+        "media_channel": [
+          "Direct Mail",
+          "Email"
+        ],
+        "audience": [
+          "Consumer"
+        ],
+        "country": "",
+        "company": [],
+        "company_match": "exact",
+        "ocr_text": [],
+        "ocr_text_match": "all",
+        "entry_id": [],
+        "panelist_id": [],
+        "panelist_type": "all",
+        "filters": [
+          "jumbo_non_conforming"
+        ],
+        "enhanced": {
+          "jumbo_non_conforming": true
+        },
+        "row_cap": 1500,
+        "company_must_not_match": "",
+        "collapse_repeats": true,
+        "max_per_creative": 2
+      },
+      "sheet": {
+        "enabled": true,
+        "tab": "Jumbo",
+        "columns": [
+          "EntryID",
+          "Primary Company",
+          "Product",
+          "Headline",
+          "Media Channel",
+          "Mailing Type",
+          "Quarter",
+          "PDF Content",
+          "Mortgage & Loan - Application Type"
+        ]
+      },
+      "feature": {
+        "enabled": true,
+        "count": 4,
+        "how_to_choose": "Jumbo and non-conforming lending. Prefer pieces that state a loan limit.",
+        "what_to_say": "One paragraph in an analyst voice. Name each institution and its specific offer, with the rate or dollar figure the piece actually states. Do not invent details.",
+        "callout_limit": 374,
+        "one_per_company": true,
+        "never_reuse": true,
+        "mention_total": true
+      }
+    }
+  ]
+}

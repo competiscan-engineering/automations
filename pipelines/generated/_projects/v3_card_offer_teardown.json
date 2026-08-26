@@ -1,0 +1,362 @@
+{
+  "schema": 3,
+  "name": "Credit card offer teardown",
+  "client": "Card Offer Teardown",
+  "cadence": "month",
+  "anchor": "prior_complete",
+  "date_field": "search_date",
+  "deck": {
+    "enabled": true,
+    "title": "{client} \u2014 {period}",
+    "filename": "{client}_{month_year}.pptx",
+    "title_slide": true,
+    "summary_slide": true,
+    "section_headings": true,
+    "closing_slide": true
+  },
+  "workbook": {
+    "enabled": true,
+    "filename": "{client}_{month_year}.xlsx"
+  },
+  "email": {
+    "enabled": false,
+    "to_addr": ""
+  },
+  "notes": "",
+  "sections": [
+    {
+      "id": "3bc59377",
+      "title": "Pre-Approved Offers",
+      "heading": "Acquisition",
+      "search": {
+        "sector": [
+          "Credit Cards"
+        ],
+        "category": [],
+        "subcategory": [],
+        "subsubcategory": [],
+        "media_channel": [
+          "Direct Mail"
+        ],
+        "audience": [
+          "Consumer"
+        ],
+        "country": "",
+        "company": [],
+        "company_match": "exact",
+        "ocr_text": [],
+        "ocr_text_match": "all",
+        "entry_id": [],
+        "panelist_id": [],
+        "panelist_type": "all",
+        "filters": [
+          "application_type"
+        ],
+        "enhanced": {
+          "application_type": [
+            "Pre-Approved",
+            "Pre-Selected"
+          ]
+        },
+        "row_cap": 1500,
+        "company_must_not_match": "",
+        "collapse_repeats": true,
+        "max_per_creative": 2
+      },
+      "sheet": {
+        "enabled": true,
+        "tab": "Pre-Approved",
+        "columns": [
+          "EntryID",
+          "Primary Company",
+          "Product",
+          "Headline",
+          "Media Channel",
+          "Audience",
+          "Mailing Type",
+          "Quarter",
+          "PDF Content"
+        ]
+      },
+      "feature": {
+        "enabled": true,
+        "count": 4,
+        "how_to_choose": "Firm-offer mail. Prefer distinct issuers and distinct incentive structures over near-duplicates of one creative.",
+        "what_to_say": "One paragraph in an analyst voice. Name each institution and its specific offer, with the rate or dollar figure the piece actually states. Do not invent details.",
+        "callout_limit": 374,
+        "one_per_company": true,
+        "never_reuse": true,
+        "mention_total": true
+      }
+    },
+    {
+      "id": "4d458abd",
+      "title": "Rewards Cards \u2014 Cash Back",
+      "heading": "Rewards",
+      "search": {
+        "sector": [
+          "Credit Cards"
+        ],
+        "category": [],
+        "subcategory": [],
+        "subsubcategory": [],
+        "media_channel": [
+          "Direct Mail",
+          "Email"
+        ],
+        "audience": [
+          "Consumer"
+        ],
+        "country": "",
+        "company": [],
+        "company_match": "exact",
+        "ocr_text": [],
+        "ocr_text_match": "all",
+        "entry_id": [],
+        "panelist_id": [],
+        "panelist_type": "all",
+        "filters": [
+          "rewards_program",
+          "rewards_emphasis"
+        ],
+        "enhanced": {
+          "rewards_program": true,
+          "rewards_emphasis": [
+            "Cash-Back"
+          ]
+        },
+        "row_cap": 1500,
+        "company_must_not_match": "",
+        "collapse_repeats": true,
+        "max_per_creative": 2
+      },
+      "sheet": {
+        "enabled": true,
+        "tab": "Cash Back",
+        "columns": [
+          "EntryID",
+          "Primary Company",
+          "Product",
+          "Headline",
+          "Media Channel",
+          "Audience",
+          "Mailing Type",
+          "Quarter",
+          "PDF Content"
+        ]
+      },
+      "feature": {
+        "enabled": true,
+        "count": 4,
+        "how_to_choose": "Cash-back cards. Lead with the pieces that state a specific percentage and the category it applies to.",
+        "what_to_say": "One paragraph in an analyst voice. Name each institution and its specific offer, with the rate or dollar figure the piece actually states. Do not invent details.",
+        "callout_limit": 374,
+        "one_per_company": true,
+        "never_reuse": true,
+        "mention_total": true
+      }
+    },
+    {
+      "id": "ca5b51f2",
+      "title": "Rewards Cards \u2014 Miles & Points",
+      "heading": "Rewards",
+      "search": {
+        "sector": [
+          "Credit Cards"
+        ],
+        "category": [],
+        "subcategory": [],
+        "subsubcategory": [],
+        "media_channel": [
+          "Direct Mail",
+          "Email"
+        ],
+        "audience": [
+          "Consumer"
+        ],
+        "country": "",
+        "company": [],
+        "company_match": "exact",
+        "ocr_text": [],
+        "ocr_text_match": "all",
+        "entry_id": [],
+        "panelist_id": [],
+        "panelist_type": "all",
+        "filters": [
+          "rewards_program",
+          "rewards_emphasis"
+        ],
+        "enhanced": {
+          "rewards_program": true,
+          "rewards_emphasis": [
+            "Miles",
+            "Points"
+          ]
+        },
+        "row_cap": 1500,
+        "company_must_not_match": "",
+        "collapse_repeats": true,
+        "max_per_creative": 2
+      },
+      "sheet": {
+        "enabled": true,
+        "tab": "Miles Points",
+        "columns": [
+          "EntryID",
+          "Primary Company",
+          "Product",
+          "Headline",
+          "Media Channel",
+          "Audience",
+          "Mailing Type",
+          "Quarter",
+          "PDF Content"
+        ]
+      },
+      "feature": {
+        "enabled": true,
+        "count": 4,
+        "how_to_choose": "Travel rewards. Prefer pieces stating a sign-up bonus and what it takes to earn it.",
+        "what_to_say": "One paragraph in an analyst voice. Name each institution and its specific offer, with the rate or dollar figure the piece actually states. Do not invent details.",
+        "callout_limit": 374,
+        "one_per_company": true,
+        "never_reuse": true,
+        "mention_total": true
+      }
+    },
+    {
+      "id": "73ec2e58",
+      "title": "Intro APR Offers",
+      "heading": "Pricing",
+      "search": {
+        "sector": [
+          "Credit Cards"
+        ],
+        "category": [],
+        "subcategory": [],
+        "subsubcategory": [],
+        "media_channel": [
+          "Direct Mail",
+          "Email"
+        ],
+        "audience": [
+          "Consumer"
+        ],
+        "country": "",
+        "company": [],
+        "company_match": "exact",
+        "ocr_text": [],
+        "ocr_text_match": "all",
+        "entry_id": [],
+        "panelist_id": [],
+        "panelist_type": "all",
+        "filters": [
+          "intro_pricing"
+        ],
+        "enhanced": {
+          "intro_pricing": [
+            "Purch Intro",
+            "BT Intro"
+          ]
+        },
+        "row_cap": 1500,
+        "company_must_not_match": "",
+        "collapse_repeats": true,
+        "max_per_creative": 2
+      },
+      "sheet": {
+        "enabled": true,
+        "tab": "Intro APR",
+        "columns": [
+          "EntryID",
+          "Primary Company",
+          "Product",
+          "Headline",
+          "Media Channel",
+          "Audience",
+          "Mailing Type",
+          "Quarter",
+          "PDF Content"
+        ]
+      },
+      "feature": {
+        "enabled": true,
+        "count": 4,
+        "how_to_choose": "Cards leading on introductory pricing. Note the length of the intro period and the go-to rate wherever the piece states them.",
+        "what_to_say": "One paragraph in an analyst voice. Name each institution and its specific offer, with the rate or dollar figure the piece actually states. Do not invent details.",
+        "callout_limit": 374,
+        "one_per_company": true,
+        "never_reuse": true,
+        "mention_total": true
+      }
+    },
+    {
+      "id": "1df20b28",
+      "title": "Premium Tier",
+      "heading": "Positioning",
+      "search": {
+        "sector": [
+          "Credit Cards"
+        ],
+        "category": [],
+        "subcategory": [],
+        "subsubcategory": [],
+        "media_channel": [
+          "Direct Mail",
+          "Email"
+        ],
+        "audience": [
+          "Consumer"
+        ],
+        "country": "",
+        "company": [],
+        "company_match": "exact",
+        "ocr_text": [],
+        "ocr_text_match": "all",
+        "entry_id": [],
+        "panelist_id": [],
+        "panelist_type": "all",
+        "filters": [
+          "card_level"
+        ],
+        "enhanced": {
+          "card_level": [
+            "Platinum",
+            "Black",
+            "Visa Signature",
+            "World MasterCard"
+          ]
+        },
+        "row_cap": 1500,
+        "company_must_not_match": "",
+        "collapse_repeats": true,
+        "max_per_creative": 2
+      },
+      "sheet": {
+        "enabled": true,
+        "tab": "Premium",
+        "columns": [
+          "EntryID",
+          "Primary Company",
+          "Product",
+          "Headline",
+          "Media Channel",
+          "Audience",
+          "Mailing Type",
+          "Quarter",
+          "PDF Content"
+        ]
+      },
+      "feature": {
+        "enabled": true,
+        "count": 4,
+        "how_to_choose": "Premium and super-premium positioning. Prefer pieces selling status and benefits rather than a rate.",
+        "what_to_say": "One paragraph in an analyst voice. Name each institution and its specific offer, with the rate or dollar figure the piece actually states. Do not invent details.",
+        "callout_limit": 374,
+        "one_per_company": true,
+        "never_reuse": true,
+        "mention_total": true
+      }
+    }
+  ]
+}

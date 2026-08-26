@@ -1,0 +1,365 @@
+{
+  "schema": 3,
+  "name": "Prospect targeting teardown",
+  "client": "Targeting Teardown",
+  "cadence": "month",
+  "anchor": "prior_complete",
+  "date_field": "search_date",
+  "deck": {
+    "enabled": true,
+    "title": "{client} \u2014 {period}",
+    "filename": "{client}_{month_year}.pptx",
+    "title_slide": true,
+    "summary_slide": true,
+    "section_headings": true,
+    "closing_slide": true
+  },
+  "workbook": {
+    "enabled": true,
+    "filename": "{client}_{month_year}.xlsx"
+  },
+  "email": {
+    "enabled": false,
+    "to_addr": ""
+  },
+  "notes": "",
+  "sections": [
+    {
+      "id": "f7102eb6",
+      "title": "Pre-Screen Mail",
+      "heading": "Compliance",
+      "search": {
+        "sector": [
+          "Credit Cards"
+        ],
+        "category": [],
+        "subcategory": [],
+        "subsubcategory": [],
+        "media_channel": [
+          "Direct Mail"
+        ],
+        "audience": [
+          "Consumer"
+        ],
+        "country": "",
+        "company": [],
+        "company_match": "exact",
+        "ocr_text": [],
+        "ocr_text_match": "all",
+        "entry_id": [],
+        "panelist_id": [],
+        "panelist_type": "all",
+        "filters": [
+          "pre_screen_opt_out"
+        ],
+        "enhanced": {
+          "pre_screen_opt_out": true
+        },
+        "row_cap": 1500,
+        "company_must_not_match": "",
+        "collapse_repeats": true,
+        "max_per_creative": 2
+      },
+      "sheet": {
+        "enabled": true,
+        "tab": "Pre-Screen",
+        "columns": [
+          "EntryID",
+          "Primary Company",
+          "Product",
+          "Headline",
+          "Media Channel",
+          "Mailing Type",
+          "Quarter",
+          "PDF Content",
+          "State/Province",
+          "Income",
+          "Age"
+        ]
+      },
+      "feature": {
+        "enabled": true,
+        "count": 4,
+        "how_to_choose": "Mail carrying a pre-screen opt-out notice \u2014 a firm offer of credit. Note who is sending it and what the offer is.",
+        "what_to_say": "One paragraph in an analyst voice. Name each institution and its specific offer, with the rate or dollar figure the piece actually states. Do not invent details.",
+        "callout_limit": 374,
+        "one_per_company": true,
+        "never_reuse": true,
+        "mention_total": true
+      }
+    },
+    {
+      "id": "fe9532c6",
+      "title": "High-Income Households",
+      "heading": "Demographics",
+      "search": {
+        "sector": [
+          "Credit Cards",
+          "Banking"
+        ],
+        "category": [],
+        "subcategory": [],
+        "subsubcategory": [],
+        "media_channel": [
+          "Direct Mail"
+        ],
+        "audience": [
+          "Consumer"
+        ],
+        "country": "",
+        "company": [],
+        "company_match": "exact",
+        "ocr_text": [],
+        "ocr_text_match": "all",
+        "entry_id": [],
+        "panelist_id": [],
+        "panelist_type": "all",
+        "filters": [
+          "income"
+        ],
+        "enhanced": {
+          "income": [
+            "$100k-$149k",
+            "$150k+"
+          ]
+        },
+        "row_cap": 1500,
+        "company_must_not_match": "",
+        "collapse_repeats": true,
+        "max_per_creative": 2
+      },
+      "sheet": {
+        "enabled": true,
+        "tab": "High Income",
+        "columns": [
+          "EntryID",
+          "Primary Company",
+          "Product",
+          "Headline",
+          "Media Channel",
+          "Mailing Type",
+          "Quarter",
+          "PDF Content",
+          "State/Province",
+          "Income",
+          "Age"
+        ]
+      },
+      "feature": {
+        "enabled": true,
+        "count": 4,
+        "how_to_choose": "Offers reaching the top two income bands. Note whether the creative is actually differentiated for an affluent audience.",
+        "what_to_say": "One paragraph in an analyst voice. Name each institution and its specific offer, with the rate or dollar figure the piece actually states. Do not invent details.",
+        "callout_limit": 374,
+        "one_per_company": true,
+        "never_reuse": true,
+        "mention_total": true
+      }
+    },
+    {
+      "id": "274aaf44",
+      "title": "Prime & Super-Prime",
+      "heading": "Demographics",
+      "search": {
+        "sector": [
+          "Credit Cards"
+        ],
+        "category": [],
+        "subcategory": [],
+        "subsubcategory": [],
+        "media_channel": [
+          "Direct Mail"
+        ],
+        "audience": [
+          "Consumer"
+        ],
+        "country": "",
+        "company": [],
+        "company_match": "exact",
+        "ocr_text": [],
+        "ocr_text_match": "all",
+        "entry_id": [],
+        "panelist_id": [],
+        "panelist_type": "all",
+        "filters": [
+          "credit_risk_band"
+        ],
+        "enhanced": {
+          "credit_risk_band": [
+            "750-774",
+            "775-799",
+            "800-824"
+          ]
+        },
+        "row_cap": 1500,
+        "company_must_not_match": "",
+        "collapse_repeats": true,
+        "max_per_creative": 2
+      },
+      "sheet": {
+        "enabled": true,
+        "tab": "Prime Credit",
+        "columns": [
+          "EntryID",
+          "Primary Company",
+          "Product",
+          "Headline",
+          "Media Channel",
+          "Mailing Type",
+          "Quarter",
+          "PDF Content",
+          "State/Province",
+          "Income",
+          "Age"
+        ]
+      },
+      "feature": {
+        "enabled": true,
+        "count": 4,
+        "how_to_choose": "Mail reaching prime and super-prime households. Prefer pieces whose offer reflects the risk band.",
+        "what_to_say": "One paragraph in an analyst voice. Name each institution and its specific offer, with the rate or dollar figure the piece actually states. Do not invent details.",
+        "callout_limit": 374,
+        "one_per_company": true,
+        "never_reuse": true,
+        "mention_total": true
+      }
+    },
+    {
+      "id": "b310095f",
+      "title": "Military Households",
+      "heading": "Life Stage",
+      "search": {
+        "sector": [
+          "Banking",
+          "Credit Cards"
+        ],
+        "category": [],
+        "subcategory": [],
+        "subsubcategory": [],
+        "media_channel": [
+          "Direct Mail",
+          "Email"
+        ],
+        "audience": [
+          "Consumer"
+        ],
+        "country": "",
+        "company": [],
+        "company_match": "exact",
+        "ocr_text": [],
+        "ocr_text_match": "all",
+        "entry_id": [],
+        "panelist_id": [],
+        "panelist_type": "all",
+        "filters": [
+          "target_market"
+        ],
+        "enhanced": {
+          "target_market": [
+            "Military"
+          ]
+        },
+        "row_cap": 1500,
+        "company_must_not_match": "",
+        "collapse_repeats": true,
+        "max_per_creative": 2
+      },
+      "sheet": {
+        "enabled": true,
+        "tab": "Military",
+        "columns": [
+          "EntryID",
+          "Primary Company",
+          "Product",
+          "Headline",
+          "Media Channel",
+          "Mailing Type",
+          "Quarter",
+          "PDF Content",
+          "State/Province",
+          "Income",
+          "Age"
+        ]
+      },
+      "feature": {
+        "enabled": true,
+        "count": 4,
+        "how_to_choose": "Military-targeted financial offers. Note which institutions specialise here versus the ones pointing a general campaign at them.",
+        "what_to_say": "One paragraph in an analyst voice. Name each institution and its specific offer, with the rate or dollar figure the piece actually states. Do not invent details.",
+        "callout_limit": 374,
+        "one_per_company": true,
+        "never_reuse": true,
+        "mention_total": true
+      }
+    },
+    {
+      "id": "c1b1c425",
+      "title": "Older Prospects (60+)",
+      "heading": "Life Stage",
+      "search": {
+        "sector": [
+          "Banking",
+          "Credit Cards"
+        ],
+        "category": [],
+        "subcategory": [],
+        "subsubcategory": [],
+        "media_channel": [
+          "Direct Mail"
+        ],
+        "audience": [
+          "Consumer"
+        ],
+        "country": "",
+        "company": [],
+        "company_match": "exact",
+        "ocr_text": [],
+        "ocr_text_match": "all",
+        "entry_id": [],
+        "panelist_id": [],
+        "panelist_type": "all",
+        "filters": [
+          "age"
+        ],
+        "enhanced": {
+          "age": [
+            "60-69",
+            "70-79",
+            "80+"
+          ]
+        },
+        "row_cap": 1500,
+        "company_must_not_match": "",
+        "collapse_repeats": true,
+        "max_per_creative": 2
+      },
+      "sheet": {
+        "enabled": true,
+        "tab": "Age 60 plus",
+        "columns": [
+          "EntryID",
+          "Primary Company",
+          "Product",
+          "Headline",
+          "Media Channel",
+          "Mailing Type",
+          "Quarter",
+          "PDF Content",
+          "State/Province",
+          "Income",
+          "Age"
+        ]
+      },
+      "feature": {
+        "enabled": true,
+        "count": 4,
+        "how_to_choose": "Mail reaching households aged 60 and over. Note whether the offer or the creative is actually adapted for them.",
+        "what_to_say": "One paragraph in an analyst voice. Name each institution and its specific offer, with the rate or dollar figure the piece actually states. Do not invent details.",
+        "callout_limit": 374,
+        "one_per_company": true,
+        "never_reuse": true,
+        "mention_total": true
+      }
+    }
+  ]
+}

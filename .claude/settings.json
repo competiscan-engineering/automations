@@ -1,0 +1,10 @@
+{
+  "enableAllProjectMcpServers": true,
+  "permissions": {
+    "allow": [
+      "mcp__competiscan-db__*",
+      "mcp__competiscan-mysql__*",
+      "mcp__competiscan-api__*"
+    ]
+  }
+}
