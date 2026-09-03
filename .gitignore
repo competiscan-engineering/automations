@@ -9,3 +9,8 @@
 .kiro/specs/studio-usability-improvements/.config.kiro
 .mcp.json
 .kiro/specs/studio-usability-improvements/requirements.md
+/pipelines/generated/_run_*.py
+/pipelines/generated/_offline_*.py
+/pipelines/generated/_runs/
+/pipelines/generated/_offline/
+/pipelines/generated/_projects/_trash/

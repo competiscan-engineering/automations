@@ -30,6 +30,7 @@ import html as html_lib
 import base64
 import asyncio
 import importlib
+import threading
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable, Optional
@@ -60,6 +61,11 @@ MODEL_ARN = os.environ.get(
     "BEDROCK_MODEL_ARN",
     "arn:aws:bedrock:us-east-2:078398740737:application-inference-profile/myhse60a8wao",
 )
+# Dollars per token. Bedrock bills per million, so the division is written out rather
+# than folded away — a price change is then a one-character edit against the published
+# rate card instead of arithmetic done in your head.
+_MODEL_IN_PRICE  = 3.00  / 1_000_000
+_MODEL_OUT_PRICE = 15.00 / 1_000_000
 
 
 def _region_from_arn(arn: str) -> str:
@@ -80,6 +86,74 @@ def bedrock_client():
     return boto3.client("bedrock-runtime", config=_BEDROCK_CONFIG)
 
 
+# Set RS_LLM_TRACE=1 to have every model call report its token usage and what it
+# actually said. OFF by default and deliberately so: a scheduled pipeline writing this
+# into production logs would be noise, and the responses can carry client detail.
+# Pipelines Studio switches it on for runs it starts itself, and prints the result to
+# the terminal the Studio was launched from rather than into the researcher's output
+# panel — it is engineering telemetry, not something a researcher asked to see.
+LLM_TRACE = os.environ.get("RS_LLM_TRACE") == "1"
+LLM_TRACE_PREFIX = "[LLM]"
+
+# What this PROCESS has spent. The write-ups and the picks run on a thread pool, so the
+# read-modify-write needs a lock or the count quietly comes out short.
+_LLM_SPEND = {"calls": 0, "in": 0, "out": 0, "usd": 0.0}
+_LLM_LOCK = threading.Lock()
+
+
+def llm_spend() -> dict:
+    """A snapshot of what this process has spent on the model."""
+    with _LLM_LOCK:
+        return dict(_LLM_SPEND)
+
+
+def llm_cost(in_tokens: int, out_tokens: int) -> float:
+    return (in_tokens or 0) * _MODEL_IN_PRICE + (out_tokens or 0) * _MODEL_OUT_PRICE
+
+
+def _trace_llm(payload: dict, system: str, prompt: str, text: str) -> None:
+    """One block per model call, on stdout, every line prefixed so a reader can pick
+    it back out of an interleaved stream."""
+    usage = payload.get("usage") or {}
+    tin = int(usage.get("input_tokens") or 0)
+    tout = int(usage.get("output_tokens") or 0)
+    cache_r = usage.get("cache_read_input_tokens") or 0
+    cache_w = usage.get("cache_creation_input_tokens") or 0
+    cost = llm_cost(tin, tout)
+    with _LLM_LOCK:
+        _LLM_SPEND["calls"] += 1
+        _LLM_SPEND["in"] += tin
+        _LLM_SPEND["out"] += tout
+        _LLM_SPEND["usd"] += cost
+        so_far = dict(_LLM_SPEND)
+
+    # The prompts are built from a template, so the first line of the system prompt is
+    # the cheapest reliable way to say which of the three calls this was.
+    kind = (system or "").strip().splitlines()[0][:70] if system else "?"
+
+    out = [
+        # ASCII only: this is read on a cp1252 console as often as not, and a
+        # box-drawing character would take the whole trace out with a UnicodeEncodeError.
+        #
+        # cost= is also the field Pipelines Studio adds up to report a whole run's
+        # spend, so it stays machine-readable: six decimal places, no thousands
+        # separators, one per line.
+        f"{LLM_TRACE_PREFIX} -- {MODEL_ARN.rsplit('/', 1)[-1]} "
+        f"in={tin} out={tout} stop={payload.get('stop_reason')} "
+        f"cost=${cost:.6f}"
+        + (f" cache_read={cache_r}" if cache_r else "")
+        + (f" cache_write={cache_w}" if cache_w else ""),
+        f"{LLM_TRACE_PREFIX}    call: {kind}",
+        f"{LLM_TRACE_PREFIX}    prompt: {len(prompt or '')} chars",
+    ]
+    for line in (text or "").splitlines() or [""]:
+        out.append(f"{LLM_TRACE_PREFIX}    > {line}")
+    out.append(
+        f"{LLM_TRACE_PREFIX}    this process so far: {so_far['calls']} call(s)  "
+        f"in={so_far['in']:,}  out={so_far['out']:,}  ${so_far['usd']:.4f}")
+    print("\n".join(out), flush=True)
+
+
 def call_claude(system: str, prompt: str, max_tokens: int = 4000) -> str:
     """Single non-streaming invoke_model call. Warns on a max_tokens stop and
     returns the response text."""
@@ -93,10 +167,16 @@ def call_claude(system: str, prompt: str, max_tokens: int = 4000) -> str:
     payload = json.loads(resp["body"].read())
     if payload.get("stop_reason") == "max_tokens":
         print("   ! Warning: response hit max_tokens — output may be truncated.")
-    return next(
+    text = next(
         (b.get("text", "") for b in payload.get("content", []) if b.get("type") == "text"),
         "",
     )
+    if LLM_TRACE:
+        try:
+            _trace_llm(payload, system, prompt, text)
+        except Exception:      # telemetry must never take a run down
+            pass
+    return text
 
 
 # ── LLM output plumbing ──────────────────────────────────────────────────────
